@@ -1,0 +1,13 @@
+{
+  "name": "morin-environnement",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev:cms": "npm run dev --workspace=apps/cms",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build:cms": "npm run build --workspace=apps/cms",
+    "build:web": "npm run build --workspace=apps/web"
+  }
+}
