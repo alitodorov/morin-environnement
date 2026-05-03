@@ -17,7 +17,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/apps/cms/.next ./.next
-COPY --from=builder /app/apps/cms/public ./public 2>/dev/null || true
+COPY --from=builder /app/apps/cms/public* ./public/
 COPY --from=builder /app/apps/cms/package*.json ./
 COPY --from=builder /app/apps/cms/next.config.js ./
 RUN npm ci --production --ignore-scripts
