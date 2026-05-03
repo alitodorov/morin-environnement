@@ -13,12 +13,35 @@ export const Contacts: CollectionConfig = {
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
   },
+  hooks: {
+    beforeChange: [
+      ({ data, req, operation }) => {
+        if (operation === 'create') {
+          // Bloquer les bots qui remplissent le honeypot
+          if (data.website) {
+            throw new Error('Bot detected')
+          }
+          // Capturer l'IP réelle (Railway passe via x-forwarded-for)
+          const ip =
+            req.headers?.get?.('x-forwarded-for')?.split(',')[0]?.trim() ??
+            req.headers?.get?.('x-real-ip') ??
+            'unknown'
+          return { ...data, ip }
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     { name: 'site', type: 'relationship', relationTo: 'sites', required: true },
     { name: 'nom', type: 'text', required: true },
     { name: 'societe', type: 'text' },
     { name: 'telephone', type: 'text' },
-    { name: 'email', type: 'email', admin: { description: "Email de l'expéditeur (optionnel)" } },
+    {
+      name: 'email',
+      type: 'email',
+      admin: { description: "Email de l'expéditeur (optionnel)" },
+    },
     {
       name: 'type_besoin',
       type: 'select',
@@ -40,7 +63,28 @@ export const Contacts: CollectionConfig = {
         { label: '✅ Traité', value: 'traite' },
       ],
     },
-    { name: 'ip', type: 'text', admin: { hidden: true } },
+    // Honeypot — jamais visible par l'humain
+    {
+      name: 'website',
+      type: 'text',
+      admin: { hidden: true },
+      access: {
+        read: () => false,
+        create: () => true, // le client peut l'envoyer (pour qu'on puisse le détecter)
+        update: () => false,
+      },
+    },
+    // IP capturée server-side uniquement
+    {
+      name: 'ip',
+      type: 'text',
+      admin: { hidden: true },
+      access: {
+        read: ({ req }) => Boolean(req.user),
+        create: () => false, // jamais settable par le client
+        update: () => false,
+      },
+    },
   ],
   timestamps: true,
 }
