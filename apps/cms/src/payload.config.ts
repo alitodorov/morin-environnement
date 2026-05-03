@@ -35,9 +35,6 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI ?? '',
     },
-    // push: true crée les tables automatiquement sans fichiers de migration
-    // À désactiver après le premier déploiement réussi
-    push: true,
   }),
   plugins: [
     cloudStoragePlugin({
