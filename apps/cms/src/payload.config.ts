@@ -12,6 +12,7 @@ import { Sites } from './collections/Sites'
 import { Granulats } from './collections/Granulats'
 import { Photos } from './collections/Photos'
 import { CodesCED } from './collections/CodesCED'
+import { Contacts } from './collections/Contacts'
 import { cloudinaryAdapter } from './cloudinaryAdapter'
 
 const filename = fileURLToPath(import.meta.url)
@@ -24,7 +25,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Sites, Granulats, Photos, CodesCED],
+  collections: [Users, Media, Sites, Granulats, Photos, CodesCED, Contacts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',
   typescript: {
