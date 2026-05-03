@@ -25,7 +25,11 @@ export default buildConfig({
   },
   collections: [Users, Media, Sites, Granulats, Photos, CodesCED, Contacts],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET ?? 'YOUR_SECRET_HERE',
+  secret: (() => {
+    const s = process.env.PAYLOAD_SECRET
+    if (!s || s.length < 32) throw new Error('PAYLOAD_SECRET manquant ou trop court')
+    return s
+  })(),
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -33,10 +37,15 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI ?? '',
     },
-    push: true,
+    push: process.env.NODE_ENV !== 'production',
   }),
   // Plugin Cloudinary temporairement désactivé — à réactiver après stabilisation
   plugins: [],
   sharp,
   serverURL: process.env.SERVER_URL ?? 'http://localhost:3001',
+  cors: [process.env.SERVER_URL ?? 'http://localhost:3001'],
+  csrf: [process.env.SERVER_URL ?? 'http://localhost:3001'],
+  graphQL: {
+    disable: process.env.NODE_ENV === 'production',
+  },
 })
