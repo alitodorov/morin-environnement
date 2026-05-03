@@ -1,35 +1,26 @@
-import type { CollectionConfig } from 'payload'
+import type { Adapter, GeneratedAdapter } from '@payloadcms/plugin-cloud-storage/types'
 import { v2 as cloudinary } from 'cloudinary'
 
-type GeneratedAdapter = {
-  name: string
-  handleUpload: (args: { file: { buffer: Buffer; filename: string } }) => Promise<{ url: string; filename: string }>
-  handleDelete: (args: { doc: { filename: string } }) => Promise<void>
-  generateURL: (args: { filename: string }) => string
-  staticHandler: (req: Request, args: { params: { collection: string; filename: string } }) => Promise<Response>
+function getCloudinaryConfig() {
+  return {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+    api_key: process.env.CLOUDINARY_API_KEY!,
+    api_secret: process.env.CLOUDINARY_API_SECRET!,
+  }
 }
 
-type Adapter = (args: { collection: CollectionConfig }) => GeneratedAdapter
-
 export function cloudinaryAdapter(): Adapter {
-  return ({ collection }: { collection: CollectionConfig }): GeneratedAdapter => {
+  return ({ collection }): GeneratedAdapter => {
     return {
       name: 'cloudinary',
 
       handleUpload: async ({ file }) => {
-        cloudinary.config({
-          cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-          api_key: process.env.CLOUDINARY_API_KEY!,
-          api_secret: process.env.CLOUDINARY_API_SECRET!,
-        })
+        cloudinary.config(getCloudinaryConfig())
 
         const result = await new Promise<{ secure_url: string; public_id: string }>(
           (resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-              {
-                folder: `morin/${collection.slug}`,
-                resource_type: 'auto',
-              },
+              { folder: `morin/${collection.slug}`, resource_type: 'auto' },
               (error, result) => {
                 if (error) reject(error)
                 else resolve(result as { secure_url: string; public_id: string })
@@ -39,24 +30,16 @@ export function cloudinaryAdapter(): Adapter {
           },
         )
 
-        return {
-          url: result.secure_url,
-          filename: file.filename,
-        }
+        return { url: result.secure_url, filename: file.filename }
       },
 
-      handleDelete: async ({ doc }) => {
-        cloudinary.config({
-          cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-          api_key: process.env.CLOUDINARY_API_KEY!,
-          api_secret: process.env.CLOUDINARY_API_SECRET!,
-        })
-
-        const publicId = `morin/${collection.slug}/${doc.filename.replace(/\.[^/.]+$/, '')}`
+      handleDelete: async ({ filename }) => {
+        cloudinary.config(getCloudinaryConfig())
+        const publicId = `morin/${collection.slug}/${filename.replace(/\.[^/.]+$/, '')}`
         try {
           await cloudinary.uploader.destroy(publicId)
         } catch {
-          // Ignore delete errors silently
+          // Ignore delete errors
         }
       },
 
