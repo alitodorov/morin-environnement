@@ -1,6 +1,15 @@
-import type { Adapter, GeneratedAdapter } from '@payloadcms/plugin-cloud-storage/dist/types.js'
 import type { CollectionConfig } from 'payload'
 import { v2 as cloudinary } from 'cloudinary'
+
+type GeneratedAdapter = {
+  name: string
+  handleUpload: (args: { file: { buffer: Buffer; filename: string } }) => Promise<{ url: string; filename: string }>
+  handleDelete: (args: { doc: { filename: string } }) => Promise<void>
+  generateURL: (args: { filename: string }) => string
+  staticHandler: (req: Request, args: { params: { collection: string; filename: string } }) => Promise<Response>
+}
+
+type Adapter = (args: { collection: CollectionConfig }) => GeneratedAdapter
 
 export function cloudinaryAdapter(): Adapter {
   return ({ collection }: { collection: CollectionConfig }): GeneratedAdapter => {
