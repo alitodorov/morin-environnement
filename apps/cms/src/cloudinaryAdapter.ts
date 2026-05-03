@@ -20,7 +20,11 @@ export function cloudinaryAdapter(): Adapter {
         const result = await new Promise<{ secure_url: string; public_id: string }>(
           (resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-              { folder: `morin/${collection.slug}`, resource_type: 'auto' },
+              {
+                folder: `morin/${collection.slug}`,
+                resource_type: 'image',
+                allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+              },
               (error, result) => {
                 if (error) reject(error)
                 else resolve(result as { secure_url: string; public_id: string })

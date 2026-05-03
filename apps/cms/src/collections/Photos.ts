@@ -4,7 +4,9 @@ export const Photos: CollectionConfig = {
   slug: 'photos',
   admin: { useAsTitle: 'legende', description: 'Galerie photos des sites' },
   access: { read: () => true },
-  upload: true, // Cloudinary adapter configuré dans payload.config.ts
+  upload: {
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+  }, // Cloudinary adapter configuré dans payload.config.ts
   fields: [
     { name: 'site', type: 'relationship', relationTo: 'sites', required: true },
     { name: 'legende', type: 'text' },
