@@ -28,3 +28,4 @@ COPY --from=builder /app/apps/cms/next.config.js ./apps/cms/
 WORKDIR /app/apps/cms
 EXPOSE 3001
 CMD ["npm", "run", "start"]
+# Build Sun May  3 11:19:37 CEST 2026
