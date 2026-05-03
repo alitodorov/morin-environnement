@@ -65,7 +65,7 @@ export function cloudinaryAdapter(): Adapter {
         return `https://res.cloudinary.com/${cloudName}/image/upload/morin/${collection.slug}/${filename}`
       },
 
-      staticHandler: async (req, { params }) => {
+      staticHandler: async (_req, { params }) => {
         const cloudName = process.env.CLOUDINARY_CLOUD_NAME!
         const url = `https://res.cloudinary.com/${cloudName}/image/upload/morin/${params.collection}/${params.filename}`
         const response = await fetch(url)
