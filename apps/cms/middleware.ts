@@ -6,6 +6,19 @@ const LIMIT = 5 // max soumissions par IP
 const WINDOW_MS = 60 * 60 * 1000 // 1 heure
 
 export function middleware(req: NextRequest) {
+  // Protection page /stock — vérifier cookie Payload
+  if (req.nextUrl.pathname.startsWith('/stock')) {
+    const token =
+      req.cookies.get('payload-token')?.value ??
+      req.cookies.get('payload_token')?.value
+
+    if (!token) {
+      const loginUrl = new URL('/admin/login', req.url)
+      loginUrl.searchParams.set('redirect', '/stock')
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
   // Appliquer uniquement sur la création de contacts
   if (req.nextUrl.pathname.startsWith('/api/contacts') && req.method === 'POST') {
     const ip =
@@ -35,5 +48,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/contacts'],
+  matcher: ['/api/contacts', '/stock/:path*'],
 }
